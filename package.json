@@ -1,0 +1,19 @@
+{
+    "name": "lofi-generator",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "postinstall": "run-p install:web",
+        "install:web": "cd web && npm install && cd ..",
+        "start": "docker-compose -f docker/docker-compose.yml up -d",
+        "build": "run-p build:web build:docker",
+        "build:web": "cd web && npm run build && cd ..",
+        "build:docker" : "docker-compose -f docker/docker-compose.yml build",
+        "poststart": "open http://localhost:8000/",
+        "stop": "docker-compose -f docker/docker-compose.yml down"
+    },
+    "devDependencies": {
+        "npm-run-all": "^4.0.2",
+        "opn-cli": "^3.1.0"
+    }
+}
