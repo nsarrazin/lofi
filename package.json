@@ -6,7 +6,7 @@
         "postinstall": "run-p install:web",
         "install:web": "cd web && npm install && cd ..",
         "start": "docker-compose -f docker/docker-compose.yml up -d",
-        "build": "run-p build:web build:docker",
+        "build": "npm-run-all build:web build:docker",
         "build:web": "cd web && npm run build && cd ..",
         "build:docker" : "docker-compose -f docker/docker-compose.yml build",
         "poststart": "open http://localhost:8000/",
