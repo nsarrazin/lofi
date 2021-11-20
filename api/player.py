@@ -22,14 +22,12 @@ class Player:
         self._thread.join()
     
     def _update(self):
-        self.chord = chords[self.n]
+        while not self._kill:
+            self.chord = chords[self.n]
 
-        self.n = (self.n+1) % 3
-        
-        if self.io is not None:
-            self.io.send(self.chord)
-        
-        time.sleep(2)
-
-        if not self._kill:
-            self._update()
+            self.n = (self.n+1) % 3
+            
+            if self.io is not None:
+                self.io.send(self.chord)
+            
+            time.sleep(1)
