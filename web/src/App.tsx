@@ -18,6 +18,11 @@ const piano = new Tone.Sampler({
 
 const synth = new Tone.PolySynth(Tone.Synth);
 
+Tone.Transport.bpm.value = 50;
+Tone.Transport.loop = true;
+Tone.Transport.loopEnd = "2n";
+Tone.Transport.start();
+
 function App() {
   return (
     <div className="App">
