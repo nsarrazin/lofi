@@ -7,11 +7,12 @@ import { Midi } from '@tonejs/midi'
 type PlayerProps = {
     name: string,
     instrument: Tone.PolySynth | Tone.Sampler,
+    vol_init: number
 }
 
-export const Player = ({name, instrument}: PlayerProps) => {
+export const Player = ({name, instrument, vol_init}: PlayerProps) => {
     const [playing, setPlaying] = useState(true);
-    const [volume, setVolume] = useState(new Tone.Volume(0))
+    const [volume, setVolume] = useState(new Tone.Volume(vol_init))
 
     useEffect(() => {instrument.chain(volume, Tone.Destination)}, [])
 

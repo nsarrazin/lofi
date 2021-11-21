@@ -23,8 +23,8 @@ function App() {
     <div className="App">
       <SocketContext.Provider value={socket}>
         Hello World from React!
-      <Player instrument={piano} name='piano'/>
-      <Player instrument={synth} name='synth'/>
+      <Player instrument={piano} name='piano' vol_init={-12}/>
+      <Player instrument={synth} name='bass' vol_init={0}/>
       </SocketContext.Provider>
     </div>
   );
