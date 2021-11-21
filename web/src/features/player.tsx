@@ -1,45 +1,46 @@
-import React, {useState, useContext, useEffect } from 'react'; 
+import React, {useState, useContext, useEffect, useCallback } from 'react'; 
 
 import {SocketContext} from '../context/socket';
 import * as Tone from 'tone'
 
 type PlayerProps = {
-    name?: string
+    name: string,
+    instrument: Tone.PolySynth | Tone.Sampler,
 }
 
-const sampler = new Tone.Sampler({
-	urls: {
-		"C4": "C4.mp3",
-		"D#4": "Ds4.mp3",
-		"F#4": "Fs4.mp3",
-		"A4": "A4.mp3",
-	},
-	release: 1,
-	baseUrl: "https://tonejs.github.io/audio/salamander/",
-}).toDestination();
+export const Player = ({name, instrument}: PlayerProps) => {
+    const [chord, setChord] = useState(["Bb3"]);
+    const [playing, setPlaying] = useState(true);
+    const [volume, setVolume] = useState(new Tone.Volume(0))
 
-const poly = new Tone.PolySynth(Tone.Synth).toDestination();
+    useEffect(() => {instrument.chain(volume, Tone.Destination)}, [])
 
-export const Player = (name: PlayerProps) => {
-    const [chord, setChord] = useState(["C3","E3","G3"]);
-
-    function handleMessage(data: string[]){
-        setChord(data)
-        playChord(data)
-    }
+    function handleMessage(data: string[], playing:boolean){ 
+            setChord(data);
+            playChord(data)
+        }
 
     function playChord(data: string[]){
-        Tone.loaded().then(() => { sampler.triggerAttackRelease(data, 1.1)});
+        Tone.loaded().then(() => { instrument.triggerAttackRelease(data, 2)});
     }
-
+    
+    function toggle_play(){
+        if(playing){
+            setPlaying(false);
+            volume.mute = true;
+        }
+        else{
+            setPlaying(true);
+            volume.mute = false;
+        }
+    }
+    
     const socket = useContext(SocketContext);    
     
-    useEffect(() => {socket.on('message', (data:string[]) => {handleMessage(data)});}, []);
+    useEffect(() => {socket.on(`midi-${name}`, (data:string[]) => handleMessage(data, playing))}, []);
     
-
     return (<div>
-                <p>hello from player ${chord}</p>
+                <p> {name} playing {chord}</p>
+                <button onClick={toggle_play}>playing : {String(playing)} </button>
             </div>);
 };
-
-export const MemoizedPlayer = React.memo(Player);

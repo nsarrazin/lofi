@@ -1,9 +1,9 @@
 import time 
 from threading import Thread
 
-chords = [["D3", "D4", "F4", "C5"],
-         ["G3", "G3", "B4", "F5"],
-         ["C3", "C3", "E4", "B5"]]
+chords = [["D2", "D3", "F3", "C4"],
+         ["G2", "G3", "B3", "F#4"],
+         ["C2", "C3", "E3", "A4"]]
 
 class Player:
     def __init__(self, io=None) -> None:
@@ -11,8 +11,8 @@ class Player:
         self._kill = False
         self._thread = None
         self.io = io
-
         self.n = 0
+
     def start(self):
         self._thread = Thread(target=self._update)
         self._thread.start()
@@ -28,6 +28,6 @@ class Player:
             self.n = (self.n+1) % 3
             
             if self.io is not None:
-                self.io.send(self.chord)
+                self.io.emit('midi-piano', self.chord)
             
-            time.sleep(1)
+            time.sleep(2)
