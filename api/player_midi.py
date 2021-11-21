@@ -8,7 +8,7 @@ roots = [62,67,60]
 track = 0
 channel = 0
 duration = 1 # In beats
-tempo = 60 # In BPM
+tempo = 50 # In BPM
 volume = 100 # 0-127, as per the MIDI p
 
 
@@ -37,7 +37,7 @@ class PlayerMIDI:
     def _generate_midi(self):
         MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
 
-        MyMIDI.addTempo(0, 0, 60)
+        MyMIDI.addTempo(0, 0, 50)
 
         for n, pitch in enumerate(degrees[self.n]):
             MyMIDI.addNote(0,0, roots[self.n]+pitch-24, (n)/2, 1/2, volume)
@@ -65,7 +65,7 @@ class PlayerMIDIChord(PlayerMIDI):
 
         MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
 
-        MyMIDI.addTempo(0, 0, 60)
+        MyMIDI.addTempo(0, 0, 50)
 
         for n, pitch in enumerate(degrees[self.n]):
             MyMIDI.addNote(0,0, roots[self.n]+pitch-12, 0, 2, volume)
