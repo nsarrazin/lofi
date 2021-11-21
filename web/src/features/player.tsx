@@ -2,6 +2,7 @@ import React, {useState, useContext, useEffect, useCallback } from 'react';
 
 import {SocketContext} from '../context/socket';
 import * as Tone from 'tone'
+import { Midi } from '@tonejs/midi'
 
 type PlayerProps = {
     name: string,
@@ -9,20 +10,26 @@ type PlayerProps = {
 }
 
 export const Player = ({name, instrument}: PlayerProps) => {
-    const [chord, setChord] = useState(["Bb3"]);
     const [playing, setPlaying] = useState(true);
     const [volume, setVolume] = useState(new Tone.Volume(0))
 
     useEffect(() => {instrument.chain(volume, Tone.Destination)}, [])
 
-    function handleMessage(data: string[], playing:boolean){ 
-            setChord(data);
-            playChord(data)
+    function handleMessage(data: Int8Array){ 
+            const midi = new Midi(data)
+            const notes = midi.tracks[0].notes
+
+            notes.forEach(note => {
+                instrument.triggerAttackRelease(note.name, note.duration, Tone.now() + note.time)
+              })
+            
+            // do something with notes, add a transport scheduler
+            // todo : add length of midi message in beats to the data of socketio send
         }
 
-    function playChord(data: string[]){
-        Tone.loaded().then(() => { instrument.triggerAttackRelease(data, 2)});
-    }
+    // function playChord(data: Int8Array){
+    //     Tone.loaded().then(() => { instrument.triggerAttackRelease(data, 2)});
+    // }
     
     function toggle_play(){
         if(playing){
@@ -37,10 +44,10 @@ export const Player = ({name, instrument}: PlayerProps) => {
     
     const socket = useContext(SocketContext);    
     
-    useEffect(() => {socket.on(`midi-${name}`, (data:string[]) => handleMessage(data, playing))}, []);
+    useEffect(() => {socket.on(`midi-${name}`, (data:Int8Array) => handleMessage(data))}, []);
     
     return (<div>
-                <p> {name} playing {chord}</p>
+                <p> {name} playing something !</p>
                 <button onClick={toggle_play}>playing : {String(playing)} </button>
             </div>);
 };
