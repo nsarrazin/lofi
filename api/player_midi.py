@@ -8,20 +8,29 @@ roots = [62,67,60]
 track = 0
 channel = 0
 duration = 1 # In beats
-tempo = 50 # In BPM
+tempo = 120 # In BPM
 volume = 100 # 0-127, as per the MIDI p
 
 
 class PlayerMIDI:
-    def __init__(self, io=None, path="midi-default", loc="dump.mid") -> None:
-        self._kill = False
-        self._thread = None
-        self.io = io
+    def __init__(self, path="midi-default", loc="dump.mid") -> None:
         self.path = path
         self.loc = loc
+        self._io = None
 
         self.n = 0
 
+        self._kill = False
+        self._thread = None
+    
+    @property
+    def io(self):
+        return self._io
+
+    @io.setter
+    def io(self, val):
+        self._io = val
+    
     def start(self):
         self._thread = Thread(target=self._update)
         self._thread.start()
@@ -37,10 +46,10 @@ class PlayerMIDI:
     def _generate_midi(self):
         MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
 
-        MyMIDI.addTempo(0, 0, 50)
+        MyMIDI.addTempo(0, 0, tempo)
 
         for n, pitch in enumerate(degrees[self.n]):
-            MyMIDI.addNote(0,0, roots[self.n]+pitch-24, (n)/2, 1/2, volume)
+            MyMIDI.addNote(0,0, roots[self.n]+pitch-24, (n), 1, volume)
         
         with open(self.loc, "wb") as output_file:
             MyMIDI.writeFile(output_file)
@@ -54,7 +63,7 @@ class PlayerMIDI:
             
             self.n = (self.n+1) % 3
             
-            time.sleep(2*60*1/tempo)
+            time.sleep(4*60*1/tempo)
 
 
 class PlayerMIDIChord(PlayerMIDI):
@@ -65,10 +74,10 @@ class PlayerMIDIChord(PlayerMIDI):
 
         MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
 
-        MyMIDI.addTempo(0, 0, 50)
+        MyMIDI.addTempo(0, 0, tempo)
 
         for n, pitch in enumerate(degrees[self.n]):
-            MyMIDI.addNote(0,0, roots[self.n]+pitch-12, 0, 2, volume)
+            MyMIDI.addNote(0,0, roots[self.n]+pitch-12, 0, 4, volume)
         
         with open(self.loc, "wb") as output_file:
             MyMIDI.writeFile(output_file)

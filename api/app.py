@@ -1,23 +1,16 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
-from player_midi import PlayerMIDI, PlayerMIDIChord
-
-
-import eventlet
-eventlet.monkey_patch()
-
-app = Flask(__name__)
-socketio = SocketIO(app,cors_allowed_origins="*")
+from conductor import Conductor
+from player_midi import PlayerMIDIChord, PlayerMIDI
     
-player_piano = PlayerMIDIChord(io=socketio, path='midi-piano', loc="dump2.mid")
-player_piano.start()
+piano = PlayerMIDIChord(path='midi-piano', loc="dump2.mid")
 
-player_bass = PlayerMIDI(io=socketio, path='midi-bass', loc="dump.mid")
-player_bass.start()
+bass = PlayerMIDI(path='midi-bass', loc="dump.mid")
 
-@app.route("/")
-def hello_world():
-    return "flask server is running !"
+instruments = [piano, bass]
+
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    # todo: make a ref to conductor in instruments to pass socketio object
+    
+    conductor = Conductor(instruments)
+    conductor.start()
+    

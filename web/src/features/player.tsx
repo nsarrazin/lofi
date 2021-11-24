@@ -3,7 +3,6 @@ import React, {useState, useContext, useEffect, useCallback } from 'react';
 import {SocketContext} from '../context/socket';
 import * as Tone from 'tone'
 import { Midi } from '@tonejs/midi'
-import { idText } from 'typescript';
 
 type PlayerProps = {
     name: string,
@@ -15,32 +14,28 @@ export const Player = ({name, instrument, vol_init}: PlayerProps) => {
     const [playing, setPlaying] = useState(true);
     const [volume, setVolume] = useState(new Tone.Volume(vol_init))
     const [eventID, setEventID] = useState([0]);
+    const [array, setArray] = useState<Int8Array>();
 
-    useEffect(() => {instrument.chain(volume, Tone.Destination)}, [])
-
-    function handleMessage(data: Int8Array){ 
-            const midi = new Midi(data)
-            const notes = midi.tracks[0].notes
-
-            eventID.forEach(id => {Tone.Transport.clear(id)}); // clear previous scheduling
-
-            setEventID([0]) //empty array
-
-            notes.forEach(note => {
-                let id = Tone.Transport.schedule((time) => {
-                    instrument.triggerAttackRelease(note.name, note.duration,time)
-                }, note.time)
-                eventID.push(id)
-            })
-            setEventID(eventID); 
-            
-            // do something with notes, add a transport scheduler
-            // todo : add length of midi message in beats to the data of socketio send
+    
+    function handleMessage(){ 
+        if (array === undefined){
+            return;
         }
+        const midi = new Midi(array)
+        const notes = midi.tracks[0].notes
+        
+        eventID.forEach(id => {Tone.Transport.clear(id)}); // clear previous scheduling
+        
+        setEventID([0]) //empty array
 
-    // function playChord(data: Int8Array){
-    //     Tone.loaded().then(() => { instrument.triggerAttackRelease(data, 2)});
-    // }
+        notes.forEach(note => {
+            let id = Tone.Transport.schedule((time) => {
+                instrument.triggerAttackRelease(note.name, note.duration,time)
+            }, note.time)
+            eventID.push(id)
+        })
+        setEventID(eventID); 
+    }
     
     function toggle_play(){
         if(playing){
@@ -55,8 +50,13 @@ export const Player = ({name, instrument, vol_init}: PlayerProps) => {
     
     const socket = useContext(SocketContext);    
     
-    useEffect(() => {socket.on(`midi-${name}`, (data:Int8Array) => handleMessage(data))}, []);
-    
+    useEffect(() => {socket.on(`midi-${name}`, (data:Int8Array) => {setArray(data)})}, []);
+    // useEffect(() => {Tone.Transport.schedule((time) => {handleMessage()}, "1m")},[])
+    // useEffect(() => {handleMessage()},[array])
+
+    useEffect(() => {Tone.Transport.scheduleOnce((time) => {handleMessage();}, "0:3:3")}, [array])
+    useEffect(() => {instrument.chain(volume, Tone.Destination)}, [])
+
     return (<div>
                 <p> {name} playing something !</p>
                 <button onClick={toggle_play}>playing : {String(playing)} </button>
