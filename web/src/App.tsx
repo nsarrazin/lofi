@@ -54,10 +54,9 @@ function App() {
     <div className="App">
       <SocketContext.Provider value={socket}>
         Hello World from React!
-      <Player instrument={piano} name='piano' vol_init={-12}/>
-      <Player instrument={synth} name='bass' vol_init={0}/>
+      <Player source={piano} name='piano' type='chords' vol_init={-12}/>
+      <Player source={synth} name='synthbass' type='bass' vol_init={0}/>
       </SocketContext.Provider>
-      <button onClick={()=>{Tone.start()}}>Play</button>
     </div>
   );
 }

@@ -1,11 +1,10 @@
 from conductor import Conductor
-from player_midi import PlayerMIDIChord, PlayerMIDI
-    
-piano = PlayerMIDIChord(path='midi-piano', loc="dump2.mid")
+from instruments.instrument import Bass, Piano
 
-bass = PlayerMIDI(path='midi-bass', loc="dump.mid")
+piano = Piano("chords", "piano")
+synthbass = Bass("bass", "synthbass")
 
-instruments = [piano, bass]
+instruments = [piano, synthbass]
 
 
 if __name__ == '__main__':

@@ -5,12 +5,13 @@ import * as Tone from 'tone'
 import { Midi } from '@tonejs/midi'
 
 type PlayerProps = {
+    type:string,
     name: string,
-    instrument: Tone.PolySynth | Tone.Sampler,
+    source: Tone.PolySynth | Tone.Sampler,
     vol_init: number
 }
 
-export const Player = ({name, instrument, vol_init}: PlayerProps) => {
+export const Player = ({type, name, source, vol_init}: PlayerProps) => {
     const [playing, setPlaying] = useState(true);
     const [volume, setVolume] = useState(new Tone.Volume(vol_init))
     const [eventID, setEventID] = useState([0]);
@@ -30,7 +31,7 @@ export const Player = ({name, instrument, vol_init}: PlayerProps) => {
 
         notes.forEach(note => {
             let id = Tone.Transport.schedule((time) => {
-                instrument.triggerAttackRelease(note.name, note.duration,time)
+                source.triggerAttackRelease(note.name, note.duration,time)
             }, note.time)
             eventID.push(id)
         })
@@ -50,12 +51,9 @@ export const Player = ({name, instrument, vol_init}: PlayerProps) => {
     
     const socket = useContext(SocketContext);    
     
-    useEffect(() => {socket.on(`midi-${name}`, (data:Int8Array) => {setArray(data)})}, []);
-    // useEffect(() => {Tone.Transport.schedule((time) => {handleMessage()}, "1m")},[])
-    // useEffect(() => {handleMessage()},[array])
-
+    useEffect(() => {socket.on(`midi-${type}-${name}`, (data:Int8Array) => {setArray(data)})}, []);
     useEffect(() => {Tone.Transport.scheduleOnce((time) => {handleMessage();}, "0:3:3")}, [array])
-    useEffect(() => {instrument.chain(volume, Tone.Destination)}, [])
+    useEffect(() => {source.chain(volume, Tone.Destination)}, [])
 
     return (<div>
                 <p> {name} playing something !</p>

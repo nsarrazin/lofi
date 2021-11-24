@@ -1,10 +1,5 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
-from player_midi import PlayerMIDI, PlayerMIDIChord
-
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
-from player_midi import PlayerMIDI, PlayerMIDIChord
 
 
 import eventlet
@@ -14,10 +9,10 @@ class Conductor:
     def __init__(self, instruments) -> None:
 
         self.app = Flask(__name__)
-        self.socketio = SocketIO(self.app,cors_allowed_origins="*")
+        self.io = SocketIO(self.app,cors_allowed_origins="*")
         
         for instrument in instruments:
-            instrument.io = self.socketio
+            instrument.master = self
 
         self.instruments = instruments
 
@@ -28,7 +23,7 @@ class Conductor:
         for instrument in self.instruments:
             instrument.start()
 
-        self.socketio.run(self.app, debug=True)
+        self.io.run(self.app, debug=True)
         
     def stop(self):
         for instrument in self.instruments:
