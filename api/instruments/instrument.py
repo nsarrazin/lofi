@@ -1,17 +1,37 @@
-import time 
 from threading import Thread
 from midiutil import MIDIFile
 
+import time, io
+
+
 class Instrument:
-    def __init__(self, type, name, loc=None) -> None:
+    def __init__(self, type, name, log=False) -> None:
         self.type = type
         self.name = name
-        self.loc = loc if loc != None else f"dump-{self.type}-{self.name}.mid"
-        self.path = f"midi-{self.type}-{self.name}"
+        self.log = log
 
         self._master = None
         self._kill = False
+        self._generator = lambda instrument: instrument.MIDI.addNote(
+            0, 0, 60, 1, 1, 100, annotation="default note"
+        )
+
         self.i = 0
+
+    @classmethod
+    def new(cls, type, name, generator):
+        instrument = cls(type, name)
+        instrument.generator = generator
+
+        return instrument
+
+    @property
+    def path(self):
+        return f"midi-{self.type}-{self.name}"
+
+    @property
+    def dump(self):
+        return f"dump-{self.type}-{self.name}.mid"
 
     @property
     def master(self):
@@ -20,59 +40,62 @@ class Instrument:
     @master.setter
     def master(self, val):
         self._master = val
-            
+
+    @property
+    def generator(self):
+        return lambda: self._generator(self)
+
+    @generator.setter
+    def generator(self, val):
+        # assert type(val) == "function", "The generator passed is not a function"
+        self._generator = val
+
     def start(self):
         self._thread = Thread(target=self._update)
         self._thread.start()
-    
+
     def stop(self):
         self._kill = True
         self._thread.join()
-    
+
     def _rest(self):
-        time.sleep(4*60*1/self.master.bpm) #sleep for 4 beats in second
+        time.sleep(4 * 60 * 1 / self.master.bpm)  # sleep for 4 beats in second
 
-    def _send(self):        
-        with open(self.loc, "rb") as input_file:
-            self.master.io.emit(self.path, input_file.read(), json=False)
-    
-    def _generate_midi(self):
-        MIDI = MIDIFile(1)
-        MIDI.addTempo(0,0, self.master.bpm)
+    def _send(self):
+        with io.BytesIO() as buf:
+            self.MIDI.writeFile(buf)
+            self.master.io.emit(self.path, buf.getvalue(), json=False)
 
-        self._populate(MIDI)
+            if self.log:
+                with open(self.dump, "wb") as output_file:
+                    output_file.write(buf.getvalue())
 
-        with open(self.loc, "wb") as output_file:
-            MIDI.writeFile(output_file)
-
-    def _populate(self, MIDI):
-        MIDI.addNote(0, 0, 60, 1, 1, 100, annotation="default note")
-    
     def _update(self):
         while not self._kill:
-            self._generate_midi()
-            self._send()            
+            self.MIDI = MIDIFile(1)
+            self.MIDI.addTempo(0, 0, self.master.bpm)
+
+            self.generator()
+            self._send()
             self._rest()
             self.i += 1
 
-class Bass(Instrument):
-    def __init__(self, type, name, loc=None) -> None:
-        super().__init__(type, name, loc=loc)
-    
-    # plays arpeggios two octave lowers
-    def _populate(self, MIDI): 
-        degrees = [[0,3,7,10], [0, 4, 7, 10],[0, 4, 7, 11]]
-        roots = [62,67,60]
-        for n, pitch in enumerate(degrees[self.i%3]):
-            MIDI.addNote(0,0, roots[self.i%3]+pitch-24, n, 1, 100)
 
-class Piano(Instrument):
-    def __init__(self, type, name, loc=None) -> None:
-        super().__init__(type, name, loc=loc)
-    
-    def _populate(self, MIDI): # plays chords in shell voicings
-        degrees = [[-12, 0,3,10], [-12, 0, 4, 10],[-12, 0, 4, 11]]
-        roots = [62,67,60]
+def populate_bass(ins):
+    degrees = [[0, 3, 7, 10], [0, 4, 7, 10], [0, 4, 7, 11]]
 
-        for pitch in degrees[self.i%3]:
-            MIDI.addNote(0,0, roots[self.i%3]+pitch-12, 0, 4, 100)
+    roots = [62, 67, 60]
+    for n, pitch in enumerate(degrees[ins.i % 3]):
+        ins.MIDI.addNote(0, 0, roots[ins.i % 3] + pitch - 24, n, 1, 100)
+
+
+def populate_piano(ins):  # plays chords in shell voicings
+    degrees = [[-12, 0, 3, 10], [-12, 0, 4, 10], [-12, 0, 4, 11]]
+    roots = [62, 67, 60]
+
+    for pitch in degrees[ins.i % 3]:
+        ins.MIDI.addNote(0, 0, roots[ins.i % 3] + pitch - 12, 0, 4, 100)
+
+
+piano = Instrument.new("chords", "piano", populate_piano)
+synthbass = Instrument.new("bass", "synthbass", populate_bass)

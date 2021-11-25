@@ -2,11 +2,11 @@ import React from 'react';
 import { Player } from './features/player';
 import './App.css';
 
-import {SocketContext, socket} from './context/socket';
+import { SocketContext, socket } from './context/socket';
 import * as Tone from 'tone'
 
 const piano = new Tone.Sampler({
-	urls: {
+  urls: {
     A0: "A0.mp3",
     C1: "C1.mp3",
     "D#1": "Ds1.mp3",
@@ -37,9 +37,9 @@ const piano = new Tone.Sampler({
     "F#7": "Fs7.mp3",
     A7: "A7.mp3",
     C8: "C8.mp3"
-  	},
-	release: 10,
-	baseUrl: "https://tonejs.github.io/audio/salamander/",
+  },
+  release: 10,
+  baseUrl: "https://tonejs.github.io/audio/salamander/",
 });
 
 const synth = new Tone.PolySynth(Tone.Synth);
@@ -54,14 +54,12 @@ function App() {
     <div className="App">
       <SocketContext.Provider value={socket}>
         Hello World from React!
-      <Player source={piano} name='piano' type='chords' vol_init={-12}/>
-      <Player source={synth} name='synthbass' type='bass' vol_init={0}/>
+        <Player source={piano} name='piano' type='chords' vol_init={-12} />
+        <Player source={synth} name='synthbass' type='bass' vol_init={0} />
       </SocketContext.Provider>
     </div>
   );
 }
-
-// fix the transport so that it only applies new midi file when looping
 
 // add meta info in flask with bpm and such
 // add meta info to socket next to bytefile with length of midi file 

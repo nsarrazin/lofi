@@ -3,14 +3,16 @@ from flask_socketio import SocketIO, emit
 
 
 import eventlet
+
 eventlet.monkey_patch()
+
 
 class Conductor:
     def __init__(self, instruments) -> None:
 
         self.app = Flask(__name__)
-        self.io = SocketIO(self.app,cors_allowed_origins="*")
-        
+        self.io = SocketIO(self.app, cors_allowed_origins="*")
+
         for instrument in instruments:
             instrument.master = self
 
@@ -24,7 +26,7 @@ class Conductor:
             instrument.start()
 
         self.io.run(self.app, debug=True)
-        
+
     def stop(self):
         for instrument in self.instruments:
             instrument.stop()
