@@ -2,11 +2,6 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
 
-import eventlet
-
-eventlet.monkey_patch()
-
-
 class Conductor:
     def __init__(self, instruments) -> None:
 
