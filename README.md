@@ -12,7 +12,7 @@ npm run start:dev
 ### Docker
 This starts the react app on http://localhost:8000/web/ using gunicorn and nginx for deployment purposes.
 ```
-npm run install:docker # this takes a long time as it needs to build the two docker images
+npm run install:docker
 npm run start:docker
 ```
 
