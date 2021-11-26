@@ -1,7 +1,7 @@
 from threading import Thread
 from midiutil import MIDIFile
 
-import time, io
+import time, io, eventlet
 
 
 class Instrument:
@@ -51,21 +51,19 @@ class Instrument:
         self._generator = val
 
     def start(self):
-        self._thread = Thread(target=self._update)
-        self._thread.start()
+        self._thread = eventlet.spawn(self._update)
 
     def stop(self):
         self._kill = True
         self._thread.join()
 
     def _rest(self):
-        time.sleep(4 * 60 * 1 / self.master.bpm)  # sleep for 4 beats in second
+        eventlet.sleep(4 * 60 * 1 / self.master.bpm)  # sleep for 4 beats in second
 
     def _send(self):
         with io.BytesIO() as buf:
             self.MIDI.writeFile(buf)
             self.master.io.emit(self.path, buf.getvalue(), json=False)
-
             if self.log:
                 with open(self.dump, "wb") as output_file:
                     output_file.write(buf.getvalue())

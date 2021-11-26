@@ -3,23 +3,18 @@
 ```
 git clone git@github.com:nsarrazin/lofi.git
 ```
-### Back-end
-This starts the flask server on http://localhost:5000/
+### Development
+This starts the server on http://localhost:3000/ with debug mode and it supports auto-reload for both front and backend.
 ```
-cd api
-conda env create -f environment.yml
-conda activate lofi-backend
-python app.py
+npm run install:dev
+npm run start:dev
 ```
-### Front-end
-This starts the web server on http://localhost:3000/
+### Docker
+This starts the react app on http://localhost:8000/web/ using gunicorn and nginx for deployment purposes.
 ```
-cd web
-npm install
-npm start
+npm run install:docker # this takes a long time as it needs to build the two docker images
+npm run start:docker
 ```
-### Docker (WIP)
-__Not working yet__ 
 
 ## Goal for MVP
 ### Back-end
@@ -42,8 +37,8 @@ __Not working yet__
 - [x] Have a working docker container for flask
 - [x] Have a working docker container for nginx serving react app
 - [x] Setup a docker-compose file to handle easy deployment
-- [ ] Have a proper build process with build/deployment artefacts
-- [ ] Handle environment variables so that the front-end knows where to find the flask server
+- [x] Have a proper build process with build/deployment artefacts
+- [x] Handle environment variables so that the front-end knows where to find the flask server
 
 ## Ressources for further reading
 - backend:

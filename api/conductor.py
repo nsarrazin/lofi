@@ -1,12 +1,8 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
-
-
 class Conductor:
-    def __init__(self, instruments) -> None:
+    def __init__(self, app, io, instruments) -> None:
 
-        self.app = Flask(__name__)
-        self.io = SocketIO(self.app, cors_allowed_origins="*")
+        self.app = app
+        self.io = io
 
         for instrument in instruments:
             instrument.master = self
@@ -19,8 +15,6 @@ class Conductor:
     def start(self):
         for instrument in self.instruments:
             instrument.start()
-
-        self.io.run(self.app, debug=True)
 
     def stop(self):
         for instrument in self.instruments:
