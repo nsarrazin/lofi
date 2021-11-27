@@ -43,9 +43,20 @@ const piano = new Tone.Sampler({
   baseUrl: "https://tonejs.github.io/audio/salamander/",
 });
 
+const drums = new Tone.Sampler({
+  urls: {
+    C4: "kick/RT_Kick_Rosen.wav",
+    D4: "snare/RT_Snare_Crunch.wav",
+    E4: "hihats/RT_High_Hat_Lofi_.wav",
+    F4: "percussion/RT_Percussion_Foley_Wood_Knock.wav"
+  },
+  release: 1,
+  baseUrl: "audio/drums/",
+});
+
 const synth = new Tone.PolySynth(Tone.Synth);
 
-Tone.Transport.bpm.value = 120;
+Tone.Transport.bpm.value = 80;
 Tone.Transport.loop = true;
 Tone.Transport.loopEnd = "1m";
 Tone.Transport.start();
@@ -57,6 +68,7 @@ function App() {
       <Grid container direction={'row'} justifyContent="space-around" marginTop="10vh">
         <Instrument source={piano} name='piano' type='chords' />
         <Instrument source={synth} name='synthbass' type='bass' />
+        <Instrument source={drums} name='lofikit' type='drums' />
       </Grid>
       </SocketContext.Provider>
     </div>

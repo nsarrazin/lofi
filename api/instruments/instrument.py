@@ -2,7 +2,7 @@ from threading import Thread
 from midiutil import MIDIFile
 
 import time, io, eventlet
-
+import numpy as np
 
 class Instrument:
     def __init__(self, type, name, log=False) -> None:
@@ -67,20 +67,51 @@ class Instrument:
         self._send()
 
 def populate_bass(ins):
-    degrees = [[0, 3, 7, 10], [0, 4, 7, 10], [0, 4, 7, 11]]
+    degrees = [[3, 7, 10, 3], [4, 7, 11, 4]]
 
-    roots = [62, 67, 60]
-    for n, pitch in enumerate(degrees[ins.i % 3]):
-        ins.MIDI.addNote(0, 0, roots[ins.i % 3] + pitch - 24, n, 1, 100)
+    x=4
+    roots = [65, 63] #F -> Eb
+    roots=[root-7*(ins.i//x)+12*(ins.i//(x*2)) for root in roots]
+
+    for n, pitch in enumerate(degrees[ins.i % 2]):
+        ins.MIDI.addNote(0, 0, roots[ins.i % 2] + pitch - 24, n, 1, 100)
 
 
 def populate_piano(ins):  # plays chords in shell voicings
-    degrees = [[-12, 0, 3, 10], [-12, 0, 4, 10], [-12, 0, 4, 11]]
-    roots = [62, 67, 60]
 
-    for pitch in degrees[ins.i % 3]:
-        ins.MIDI.addNote(0, 0, roots[ins.i % 3] + pitch - 12, 0, 4, 100)
+    #min9 -> maj9
+    degrees = [[0, 3, 7, 10, 14, 17], #min9
+               [0, 4, 7, 11, 14, 19]] #maj9
 
+    # degrees = [[3, 10, 14, 17], #min9
+    #            [4, 11, 14, 19]] #maj9
+
+    x=4
+    roots = [65, 63] #F -> Eb
+    roots=[root-7*(ins.i//x)+12*(ins.i//(x*2)) for root in roots]
+    # every x bar we go down one fifth every 2x bar we go up one octave
+
+    
+    for pitch in degrees[ins.i % len(degrees)]:
+        ins.MIDI.addNote(0, 0, roots[ins.i % len(roots)] + pitch - 12, 0, 4, 100)
+
+def populate_drum(ins):
+    kick = 60
+    snare = 62
+    hihat = 64
+    wood = 65
+
+    for n in range(4):
+        ins.MIDI.addNote(0, 0, 64, n+0.5, 1, 25)
+    
+    ins.MIDI.addNote(0, 0, kick, 0, 1, 75)
+
+    if ins.i%4==0:
+        ins.MIDI.addNote(0, 0, kick, 0.5, 1, 50)
+    
+    ins.MIDI.addNote(0, 0, snare, 1, 1, 80)
+    ins.MIDI.addNote(0, 0, snare, 3, 1, 80)
 
 piano = Instrument.new("chords", "piano", populate_piano)
 synthbass = Instrument.new("bass", "synthbass", populate_bass)
+lofikit = Instrument.new("drums", "lofikit", populate_drum)

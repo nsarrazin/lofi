@@ -10,7 +10,7 @@ class Conductor:
 
         self.instruments = instruments
 
-        self.bpm = 120
+        self.bpm = 80
         self.key = "C"
 
         self.i = 0
