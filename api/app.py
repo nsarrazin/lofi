@@ -17,9 +17,6 @@ def index():
 
 instruments = [piano, synthbass]
 
-
-#useless changes
-
 conductor = Conductor(app, io, instruments)
 conductor.start()
 

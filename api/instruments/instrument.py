@@ -11,13 +11,11 @@ class Instrument:
         self.log = log
 
         self._master = None
-        self._kill = False
+        # self._kill = False
         self._generator = lambda instrument: instrument.MIDI.addNote(
             0, 0, 60, 1, 1, 100, annotation="default note"
         )
-
-        self.i = 0
-
+    
     @classmethod
     def new(cls, type, name, generator):
         instrument = cls(type, name)
@@ -42,23 +40,16 @@ class Instrument:
         self._master = val
 
     @property
+    def i(self):
+        return self.master.i
+
+    @property
     def generator(self):
         return lambda: self._generator(self)
-
+    
     @generator.setter
     def generator(self, val):
-        # assert type(val) == "function", "The generator passed is not a function"
         self._generator = val
-
-    def start(self):
-        self._thread = eventlet.spawn(self._update)
-
-    def stop(self):
-        self._kill = True
-        self._thread.join()
-
-    def _rest(self):
-        eventlet.sleep(4 * 60 * 1 / self.master.bpm)  # sleep for 4 beats in second
 
     def _send(self):
         with io.BytesIO() as buf:
@@ -68,16 +59,12 @@ class Instrument:
                 with open(self.dump, "wb") as output_file:
                     output_file.write(buf.getvalue())
 
-    def _update(self):
-        while not self._kill:
-            self.MIDI = MIDIFile(1)
-            self.MIDI.addTempo(0, 0, self.master.bpm)
+    def update(self):
+        self.MIDI = MIDIFile(1)
+        self.MIDI.addTempo(0, 0, self.master.bpm)
 
-            self.generator()
-            self._send()
-            self._rest()
-            self.i += 1
-
+        self.generator()
+        self._send()
 
 def populate_bass(ins):
     degrees = [[0, 3, 7, 10], [0, 4, 7, 10], [0, 4, 7, 11]]
