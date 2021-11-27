@@ -1,9 +1,10 @@
 import React from 'react';
-import { Player } from './features/player';
+import { Instrument } from './features/instrument';
 import './App.css';
 
 import { SocketContext, socket } from './context/socket';
 import * as Tone from 'tone'
+import Grid from '@mui/material/Grid';
 
 const piano = new Tone.Sampler({
   urls: {
@@ -53,9 +54,10 @@ function App() {
   return (
     <div className="App">
       <SocketContext.Provider value={socket}>
-        Hello World from React!
-        <Player source={piano} name='piano' type='chords' vol_init={-12} />
-        <Player source={synth} name='synthbass' type='bass' vol_init={0} />
+      <Grid container direction={'row'} justifyContent="space-around" marginTop="10vh">
+        <Instrument source={piano} name='piano' type='chords' />
+        <Instrument source={synth} name='synthbass' type='bass' />
+      </Grid>
       </SocketContext.Provider>
     </div>
   );

@@ -5,19 +5,16 @@ import * as Tone from 'tone'
 import { Midi } from '@tonejs/midi'
 
 type PlayerProps = {
-    type:string,
-    name: string,
+    path: string,
     source: Tone.PolySynth | Tone.Sampler,
-    vol_init: number
+    volume: Tone.Volume,
 }
 
-export const Player = ({type, name, source, vol_init}: PlayerProps) => {
+export const Player = ({path, source, volume}: PlayerProps) => {
     const [playing, setPlaying] = useState(true);
-    const [volume, setVolume] = useState(new Tone.Volume(vol_init))
     const [eventID, setEventID] = useState([0]);
     const [array, setArray] = useState<Int8Array>();
 
-    
     function handleMessage(){ 
         if (array === undefined){
             return;
@@ -38,25 +35,12 @@ export const Player = ({type, name, source, vol_init}: PlayerProps) => {
         setEventID(eventID); 
     }
     
-    function toggle_play(){
-        if(playing){
-            setPlaying(false);
-            volume.mute = true;
-        }
-        else{
-            setPlaying(true);
-            volume.mute = false;
-        }
-    }
     
     const socket = useContext(SocketContext);    
     
-    useEffect(() => {socket.on(`midi-${type}-${name}`, (data:Int8Array) => {setArray(data)})}, []);
+    useEffect(() => {socket.on(path, (data:Int8Array) => {setArray(data)})}, []);
     useEffect(() => {Tone.Transport.scheduleOnce((time) => {handleMessage();}, "0:3:3")}, [array])
     useEffect(() => {source.chain(volume, Tone.Destination)}, [])
 
-    return (<div>
-                <p> {name} playing something !</p>
-                <button onClick={toggle_play}>playing : {String(playing)} </button>
-            </div>);
+    return (null);
 };
