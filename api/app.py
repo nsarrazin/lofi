@@ -1,5 +1,5 @@
 from conductor import Conductor
-from instruments.instrument import synthbass, piano, lofikit
+from instruments.instrument import doublebass, piano, lofikit, synthpad
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
@@ -15,7 +15,7 @@ io.init_app(app, cors_allowed_origins="*", async_mode="eventlet")
 def index():
     return 'Index Page'
 
-instruments = [piano, synthbass, lofikit]
+instruments = [piano, doublebass, lofikit, synthpad]
 
 conductor = Conductor(app, io, instruments)
 conductor.start()

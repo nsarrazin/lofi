@@ -11,7 +11,6 @@ type PlayerProps = {
 }
 
 export const Player = ({path, source, volume}: PlayerProps) => {
-    const [playing, setPlaying] = useState(true);
     const [eventID, setEventID] = useState([0]);
     const [array, setArray] = useState<Int8Array>();
 

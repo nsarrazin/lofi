@@ -70,11 +70,14 @@ def populate_bass(ins):
     degrees = [[3, 7, 10, 3], [4, 7, 11, 4]]
 
     x=4
-    roots = [65, 63] #F -> Eb
-    roots=[root-7*(ins.i//x)+12*(ins.i//(x*2)) for root in roots]
+    roots = [73, 71] #F -> Eb
+    roots=[root-7*(ins.i//x) \
+            + 12*(ins.i//(x*2))
+            + 12*(ins.i//(x*12)) for root in roots]        
+    # ins.MIDI.addNote(0, 0, roots[ins.i % 2] - 12*3, 0, 1, 100)
 
     for n, pitch in enumerate(degrees[ins.i % 2]):
-        ins.MIDI.addNote(0, 0, roots[ins.i % 2] + pitch - 24, n, 1, 100)
+        ins.MIDI.addNote(0, 0, roots[ins.i % 2] + pitch - 12*3, n+0.05, 1, 100)
 
 
 def populate_piano(ins):  # plays chords in shell voicings
@@ -83,12 +86,11 @@ def populate_piano(ins):  # plays chords in shell voicings
     degrees = [[0, 3, 7, 10, 14, 17], #min9
                [0, 4, 7, 11, 14, 19]] #maj9
 
-    # degrees = [[3, 10, 14, 17], #min9
-    #            [4, 11, 14, 19]] #maj9
-
     x=4
-    roots = [65, 63] #F -> Eb
-    roots=[root-7*(ins.i//x)+12*(ins.i//(x*2)) for root in roots]
+    roots = [73, 71] #F -> Eb
+    roots=[root-7*(ins.i//x) \
+            + 12*(ins.i//(x*2))
+            + 12*(ins.i//(x*12)) for root in roots]        
     # every x bar we go down one fifth every 2x bar we go up one octave
 
     
@@ -102,16 +104,19 @@ def populate_drum(ins):
     wood = 65
 
     for n in range(4):
-        ins.MIDI.addNote(0, 0, 64, n+0.5, 1, 25)
+        ins.MIDI.addNote(0, 0, hihat, n+0.5, 1, 25)
     
     ins.MIDI.addNote(0, 0, kick, 0, 1, 75)
 
-    if ins.i%4==0:
-        ins.MIDI.addNote(0, 0, kick, 0.5, 1, 50)
-    
+    if ins.i%6==0:
+        ins.MIDI.addNote(0, 0, kick, 3.55, 1, 50)
+
     ins.MIDI.addNote(0, 0, snare, 1, 1, 80)
     ins.MIDI.addNote(0, 0, snare, 3, 1, 80)
 
+def populate_pads(ins):
+    pass
 piano = Instrument.new("chords", "piano", populate_piano)
-synthbass = Instrument.new("bass", "synthbass", populate_bass)
+doublebass = Instrument.new("bass", "doublebass", populate_bass)
 lofikit = Instrument.new("drums", "lofikit", populate_drum)
+synthpad = Instrument.new("pads", "synthpad", populate_pads)

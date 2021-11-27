@@ -5,6 +5,7 @@ import './App.css';
 import { SocketContext, socket } from './context/socket';
 import * as Tone from 'tone'
 import Grid from '@mui/material/Grid';
+import AlertDialog from './components/alert';
 
 const piano = new Tone.Sampler({
   urls: {
@@ -54,7 +55,16 @@ const drums = new Tone.Sampler({
   baseUrl: "audio/drums/",
 });
 
-const synth = new Tone.PolySynth(Tone.Synth);
+
+const bass = new Tone.Sampler({
+  urls:{C2: "RT_One_Shot_Bass_Synth_Upright_C.wav"},
+  baseUrl: "audio/oneshots/"
+});
+
+const pad = new Tone.Sampler({
+  urls:{C4: "RT_One_Shot_Classic_Rosen_Lead_C.wav"},
+  baseUrl: "audio/oneshots/"
+})
 
 Tone.Transport.bpm.value = 80;
 Tone.Transport.loop = true;
@@ -64,11 +74,14 @@ Tone.Transport.start();
 function App() {
   return (
     <div className="App">
+      <AlertDialog/>
       <SocketContext.Provider value={socket}>
       <Grid container direction={'row'} justifyContent="space-around" marginTop="10vh">
         <Instrument source={piano} name='piano' type='chords' />
-        <Instrument source={synth} name='synthbass' type='bass' />
+        <Instrument source={bass} name='doublebass' type='bass' />
         <Instrument source={drums} name='lofikit' type='drums' />
+        <Instrument source={pad} name='synthpad' type='pads' />
+
       </Grid>
       </SocketContext.Provider>
     </div>
@@ -78,7 +91,4 @@ function App() {
 // add meta info in flask with bpm and such
 // add meta info to socket next to bytefile with length of midi file 
 // add extra meta component with master volume, effect tracks, etc.
-// add drumkit support
-// improve front-end UI with volume sliders 
-// fix the deployment with docker
 export default App;
