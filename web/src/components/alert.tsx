@@ -13,6 +13,7 @@ export default function AlertDialog() {
   const handleClose = () => {
     setOpen(false);
     Tone.start();
+    Tone.Transport.start();
   };
 
   return (

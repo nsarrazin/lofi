@@ -3,6 +3,7 @@ from midiutil import MIDIFile
 
 import time, io, eventlet
 import numpy as np
+from utils import reversed_mapping
 
 class Instrument:
     def __init__(self, type, name, log=False) -> None:
@@ -24,6 +25,18 @@ class Instrument:
         return instrument
 
     @property
+    def i(self):
+        return self.master.i
+    
+    @property
+    def chord(self):
+        return self.master.cm.chord
+    
+    @property
+    def next_chord(self):
+        return self.master.cm.next_chord
+
+    @property
     def path(self):
         return f"midi-{self.type}-{self.name}"
 
@@ -38,10 +51,6 @@ class Instrument:
     @master.setter
     def master(self, val):
         self._master = val
-
-    @property
-    def i(self):
-        return self.master.i
 
     @property
     def generator(self):
@@ -66,38 +75,42 @@ class Instrument:
         self.generator()
         self._send()
 
-def populate_bass(ins):
-    degrees = [[3, 7, 10, 3], [4, 7, 11, 4]]
+def populate_bass(ins): #walk da bass
+    octave = 3
+    root = 12*octave + reversed_mapping[ins.chord.root]
+    intervals = [i for _,i in ins.chord.intervals]
 
-    x=4
-    roots = [73, 71] #F -> Eb
-    roots=[root-7*(ins.i//x) \
-            + 12*(ins.i//(x*2))
-            + 12*(ins.i//(x*12)) for root in roots]        
-    # ins.MIDI.addNote(0, 0, roots[ins.i % 2] - 12*3, 0, 1, 100)
+    notes = [root+interval for interval in intervals]
 
-    for n, pitch in enumerate(degrees[ins.i % 2]):
-        ins.MIDI.addNote(0, 0, roots[ins.i % 2] + pitch - 12*3, n+0.05, 1, 100)
+    next_root = 12*octave + reversed_mapping[ins.next_chord.root]
+    next_intervals = [i for _,i in ins.next_chord.intervals]
+    next_notes = [root+interval for interval in intervals]
+
+    ins.MIDI.addNote(0, 0, root, 0.05, 1, 100)
+
+    choices = np.random.choice(notes, size=2, replace=False)
+
+    ins.MIDI.addNote(0, 0, choices[0], 1.05, 1, 100)
+    ins.MIDI.addNote(0, 0, choices[1], 2.05, 1, 100)
+
+    common_notes = list(set(notes).intersection(next_notes))
+    if common_notes != []:
+        note = np.random.choice(common_notes, size=1)
+    else:
+        note = np.random.choice(next_notes,size=1)
+
+    ins.MIDI.addNote(0, 0, note[0],3.05,1,100)
 
 
-def populate_piano(ins):  # plays chords in shell voicings
+def populate_piano(ins):  # plays chords
+    octave = 4
+    root = 12*octave + reversed_mapping[ins.chord.root]
 
-    #min9 -> maj9
-    degrees = [[0, 3, 7, 10, 14, 17], #min9
-               [0, 4, 7, 11, 14, 19]] #maj9
+    for _, interval in ins.chord.intervals:
+        ins.MIDI.addNote(0, 0, root+interval, 0, 4, 100)
 
-    x=4
-    roots = [73, 71] #F -> Eb
-    roots=[root-7*(ins.i//x) \
-            + 12*(ins.i//(x*2))
-            + 12*(ins.i//(x*12)) for root in roots]        
-    # every x bar we go down one fifth every 2x bar we go up one octave
 
-    
-    for pitch in degrees[ins.i % len(degrees)]:
-        ins.MIDI.addNote(0, 0, roots[ins.i % len(roots)] + pitch - 12, 0, 4, 100)
-
-def populate_drum(ins):
+def populate_drum(ins): #boom tik tchak tik tik tchak tik (boom)
     kick = 60
     snare = 62
     hihat = 64
@@ -108,14 +121,15 @@ def populate_drum(ins):
     
     ins.MIDI.addNote(0, 0, kick, 0, 1, 75)
 
-    if ins.i%6==0:
-        ins.MIDI.addNote(0, 0, kick, 3.55, 1, 50)
+    if ins.i%4==0:
+        ins.MIDI.addNote(0, 0, kick, 3.5, 1, 50)
 
     ins.MIDI.addNote(0, 0, snare, 1, 1, 80)
     ins.MIDI.addNote(0, 0, snare, 3, 1, 80)
 
 def populate_pads(ins):
     pass
+
 piano = Instrument.new("chords", "piano", populate_piano)
 doublebass = Instrument.new("bass", "doublebass", populate_bass)
 lofikit = Instrument.new("drums", "lofikit", populate_drum)

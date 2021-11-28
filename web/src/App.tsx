@@ -1,12 +1,12 @@
 import React from 'react';
-import { Instrument } from './features/instrument';
+import { Instrument } from './components/instrument';
 import './App.css';
 
 import { SocketContext, socket } from './context/socket';
 import * as Tone from 'tone'
 import Grid from '@mui/material/Grid';
 import AlertDialog from './components/alert';
-
+import { Chords } from './components/chords';
 const piano = new Tone.Sampler({
   urls: {
     A0: "A0.mp3",
@@ -69,7 +69,6 @@ const pad = new Tone.Sampler({
 Tone.Transport.bpm.value = 80;
 Tone.Transport.loop = true;
 Tone.Transport.loopEnd = "1m";
-Tone.Transport.start();
 
 function App() {
   return (
@@ -83,6 +82,7 @@ function App() {
         <Instrument source={pad} name='synthpad' type='pads' />
 
       </Grid>
+      <Chords/>
       </SocketContext.Provider>
     </div>
   );

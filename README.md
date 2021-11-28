@@ -44,6 +44,7 @@ npm run start:docker
 - backend:
     - flask-socketio : https://flask-socketio.readthedocs.io/en/latest/
     - midi-util : https://midiutil.readthedocs.io/en/1.2.1/
+    - ChordalPy : https://github.com/P-bibs/ChordalPy (dope, love it)
 - frontend:
     - toneJS (sounds, effect, sequencer): 
         - https://github.com/Tonejs/Tone.js
