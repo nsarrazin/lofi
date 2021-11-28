@@ -1,6 +1,8 @@
 import eventlet
 
 from chords import Chords
+
+
 class Conductor:
     def __init__(self, app, io, instruments) -> None:
 
@@ -11,7 +13,6 @@ class Conductor:
             instrument.master = self
 
         self.instruments = instruments
-
 
         self.bpm = 80
         self.key = "C"
@@ -26,7 +27,7 @@ class Conductor:
     @property
     def chord(self):
         self.cm.chord
-    
+
     def start(self):
         self._thread = eventlet.spawn(self.update)
 
@@ -44,5 +45,5 @@ class Conductor:
             for instrument in self.instruments:
                 instrument.update()
 
-            self.i+=1
+            self.i += 1
             self._rest()
