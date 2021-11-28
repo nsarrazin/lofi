@@ -3,7 +3,7 @@ from midiutil import MIDIFile
 
 import time, io, eventlet
 import numpy as np
-from utils import reversed_mapping
+from utils import reversed_mapping, intervalToTuple
 
 
 class Instrument:
@@ -79,6 +79,7 @@ class Instrument:
 
 def populate_bass(ins):  # walk da bass
     octave = 3
+    l_note = 0.75
     root = 12 * octave + reversed_mapping[ins.chord.root]
     intervals = [i for _, i in ins.chord.intervals]
 
@@ -88,12 +89,12 @@ def populate_bass(ins):  # walk da bass
     next_intervals = [i for _, i in ins.next_chord.intervals]
     next_notes = [next_root + interval for interval in next_intervals]
 
-    ins.MIDI.addNote(0, 0, root, 0.05, 1, 100)
+    ins.MIDI.addNote(0, 0, root, 0.05, l_note, 100)
 
     choices = np.random.choice(notes, size=2, replace=False)
 
-    ins.MIDI.addNote(0, 0, choices[0], 1.05, 1, 100)
-    ins.MIDI.addNote(0, 0, choices[1], 2.05, 1, 100)
+    ins.MIDI.addNote(0, 0, choices[0], 1.05, l_note, 100)
+    ins.MIDI.addNote(0, 0, choices[1], 2.05, l_note, 100)
 
     common_notes = list(set(notes).intersection(next_notes))
     if common_notes != []:
@@ -101,15 +102,22 @@ def populate_bass(ins):  # walk da bass
     else:
         note = np.random.choice(next_notes, size=1)
 
-    ins.MIDI.addNote(0, 0, note[0], 3.05, 1, 100)
+    ins.MIDI.addNote(0, 0, note[0], 3.05, l_note, 100)
 
 
 def populate_piano(ins):  # plays chords
     octave = 4
     root = 12 * octave + reversed_mapping[ins.chord.root]
 
-    for _, interval in ins.chord.intervals:
-        ins.MIDI.addNote(0, 0, root + interval, 0, 4, 100)
+    if ins.chord.bass != "":
+        bass = (root - 12) + intervalToTuple[ins.chord.bass][1]
+    else:
+        bass = root - 12
+
+    ins.MIDI.addNote(0, 0, bass, 0, 4, 100)
+
+    for n, (_, interval) in enumerate(ins.chord.intervals):
+        ins.MIDI.addNote(0, 0, root + interval, 0 + n / 25, 4 - n / 25, 100)
 
 
 def populate_drum(ins):  # boom tik tchak tik tik tchak tik (boom)

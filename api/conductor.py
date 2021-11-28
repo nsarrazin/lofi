@@ -42,8 +42,11 @@ class Conductor:
         while not self._kill:
             self.cm.update()
 
-            for instrument in self.instruments:
-                instrument.update()
+            for i in range(8):
+                for instrument in self.instruments:
+                    instrument.update()
 
-            self.i += 1
-            self._rest()
+                self.i += 1
+                self._rest()
+
+                self.cm._send()

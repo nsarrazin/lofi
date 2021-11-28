@@ -57,14 +57,43 @@ const drums = new Tone.Sampler({
 
 
 const bass = new Tone.Sampler({
-  urls:{C2: "RT_One_Shot_Bass_Synth_Upright_C.wav"},
+  urls: { C2: "RT_One_Shot_Bass_Synth_Upright_C.wav" },
   baseUrl: "audio/oneshots/"
 });
 
 const pad = new Tone.Sampler({
-  urls:{C4: "RT_One_Shot_Classic_Rosen_Lead_C.wav"},
+  urls: { C4: "RT_One_Shot_Classic_Rosen_Lead_C.wav" },
   baseUrl: "audio/oneshots/"
 })
+
+const synth = new Tone.MonoSynth(
+  {
+    "oscillator": {
+      "type": "fmsquare5",
+      "modulationType": "triangle",
+      "modulationIndex": 2,
+      "harmonicity": 0.501
+    },
+    "filter": {
+      "Q": 1,
+      "type": "lowpass",
+      "rolloff": -24
+    },
+    "envelope": {
+      "attack": 0.01,
+      "decay": 0.1,
+      "sustain": 0.4,
+      "release": 2
+    },
+    "filterEnvelope": {
+      "attack": 0.01,
+      "decay": 0.1,
+      "sustain": 0.8,
+      "release": 1.5,
+      "baseFrequency": 50,
+      "octaves": 4.4
+    }
+  });
 
 Tone.Transport.bpm.value = 80;
 Tone.Transport.loop = true;
@@ -73,16 +102,16 @@ Tone.Transport.loopEnd = "1m";
 function App() {
   return (
     <div className="App">
-      <AlertDialog/>
+      <AlertDialog />
       <SocketContext.Provider value={socket}>
-      <Grid container direction={'row'} justifyContent="space-around" marginTop="10vh">
-        <Instrument source={piano} name='piano' type='chords' />
-        <Instrument source={bass} name='doublebass' type='bass' />
-        <Instrument source={drums} name='lofikit' type='drums' />
-        <Instrument source={pad} name='synthpad' type='pads' />
+        <Grid container direction={'row'} justifyContent="space-around" marginTop="10vh">
+          <Instrument source={piano} name='piano' type='chords' />
+          <Instrument source={synth} name='doublebass' type='bass' />
+          <Instrument source={drums} name='lofikit' type='drums' />
+          <Instrument source={pad} name='synthpad' type='pads' />
 
-      </Grid>
-      <Chords/>
+        </Grid>
+        <Chords />
       </SocketContext.Provider>
     </div>
   );
