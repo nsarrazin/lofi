@@ -24,6 +24,13 @@ class Conductor:
         self._thread = None
         self._kill = False
 
+        self.spice = 0.6
+
+        @io.on("spice")
+        def handle_chords(data):
+            self.spice = float(data)
+            self.cm.update()
+
     @property
     def chord(self):
         self.cm.chord

@@ -34,7 +34,7 @@ class Chords:
     def update(self):
         for j in range(len(self.sequence)):
             i = statespace.index(self.sequence[j - 1])
-            P = np.power(Q[i, :], 0.7)
+            P = np.power(Q[i, :], self.master.spice)
             P /= P.sum()  # normalize
 
             chord = np.random.choice(statespace, p=P)

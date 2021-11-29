@@ -109,6 +109,7 @@ def populate_piano(ins):  # plays chords
     octave = 4
     root = 12 * octave + reversed_mapping[ins.chord.root]
 
+    n_notes = len(ins.chord.get_spelling())
     if ins.chord.bass != "":
         bass = (root - 12) + intervalToTuple[ins.chord.bass][1]
     else:
@@ -117,7 +118,9 @@ def populate_piano(ins):  # plays chords
     ins.MIDI.addNote(0, 0, bass, 0, 4, 100)
 
     for n, (_, interval) in enumerate(ins.chord.intervals):
-        ins.MIDI.addNote(0, 0, root + interval, 0 + n / 25, 4 - n / 25, 100)
+        ins.MIDI.addNote(
+            0, 0, root + interval, 0 + n / (n_notes * 10), 4 - n / (n_notes * 10), 100
+        )
 
 
 def populate_drum(ins):  # boom tik tchak tik tik tchak tik (boom)

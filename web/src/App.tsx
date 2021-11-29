@@ -7,6 +7,8 @@ import * as Tone from 'tone'
 import Grid from '@mui/material/Grid';
 import AlertDialog from './components/alert';
 import { Chords } from './components/chords';
+import { Spicer } from './components/spicer';
+
 const piano = new Tone.Sampler({
   urls: {
     A0: "A0.mp3",
@@ -111,6 +113,7 @@ function App() {
           <Instrument source={pad} name='synthpad' type='pads' />
 
         </Grid>
+        <Spicer />
         <Chords />
       </SocketContext.Provider>
     </div>
