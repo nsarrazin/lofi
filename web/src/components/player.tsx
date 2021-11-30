@@ -27,7 +27,7 @@ export const Player = ({ path, source, volume }: PlayerProps) => {
 
         notes.forEach(note => {
             let id = Tone.Transport.schedule((time) => {
-                source.triggerAttackRelease(note.name, note.duration, time)
+                source.triggerAttackRelease(note.name, note.duration, time, note.velocity)
             }, note.time)
             eventID.push(id)
         })
