@@ -14,7 +14,7 @@ io.init_app(app, cors_allowed_origins="*", async_mode="eventlet")
 
 @app.route("/")
 def index():
-    return "Index Page"
+    return "Index Page API"
 
 
 instruments = [piano, doublebass, lofikit, synthpad]

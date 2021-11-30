@@ -26,17 +26,22 @@ class Conductor:
 
         self.spice = 0.6
 
-        @io.on("spice")
-        def handle_chords(data):
-            self.spice = float(data)
-            self.cm.update()
-
     @property
     def chord(self):
         self.cm.chord
 
     def start(self):
         self._thread = eventlet.spawn(self.update)
+
+        @self.io.on("spice")
+        def handle_chords(data):
+            self.spice = float(data)
+            self.cm.update()
+
+        @self.io.on("connect")
+        def init_data():
+            self.io.emit("data", self.data, json=True)
+
 
     def stop(self):
         self._kill = True
@@ -57,3 +62,12 @@ class Conductor:
                 self._rest()
 
                 self.cm._send()
+
+    @property
+    def data(self):
+        return {
+        "key":self.key, 
+        "bpm":self.bpm, 
+        "i":self.i,
+        "spice": self.spice
+        }

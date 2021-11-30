@@ -5,6 +5,7 @@ import { SocketContext } from '../context/socket';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Slider from '@mui/material/Slider';
+import { Dictionary } from '@reduxjs/toolkit';
 
 type SpicerProp = {
 }
@@ -19,6 +20,7 @@ export const Spicer = ({ }: SpicerProp) => {
         socket.emit("spice", 2 - value)
     };
 
+    useEffect(() => { socket.on("data", (data: Dictionary<any>) => {let x:number=2-data!.spice;setValue(x);})}, []);
     return (
         <Box maxWidth="500px" width="50vw" height="20vh"
             padding="10px" margin='auto'>

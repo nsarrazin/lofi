@@ -111,7 +111,7 @@ function App() {
           <Instrument source={synth} name='doublebass' type='bass' />
           <Instrument source={drums} name='lofikit' type='drums' />
           <Instrument source={pad} name='synthpad' type='pads' />
-
+          
         </Grid>
         <Spicer />
         <Chords />
